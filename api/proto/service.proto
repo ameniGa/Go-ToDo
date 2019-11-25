@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+
+//todo item represented by an id, title and a description
+message ToDoItem {
+    int64 id = 1;
+    string title = 2;
+    string description = 3;
+    string tag = 4;
+
+}
+// this is a generic response to add, put and delete request
+message GenericResponse {
+    int64 code = 1;
+    string msg = 2;
+}
+
+// define todo service
+service TodoListService {
+    rpc AddToDo (ToDoItem) returns (GenericResponse) {
+    //http entry to this grpc service
+option (google.api.http) = {
+     post : "/todo/add"
+     body : "*"
+
+
+};
+}
+}

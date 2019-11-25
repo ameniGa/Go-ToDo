@@ -1,0 +1,75 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "service.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/todo/add": {
+      "post": {
+        "operationId": "AddToDo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GenericResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ToDoItem"
+            }
+          }
+        ],
+        "tags": [
+          "TodoListService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "GenericResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "format": "int64"
+        },
+        "msg": {
+          "type": "string"
+        }
+      },
+      "title": "this is a generic response to add, put and delete request"
+    },
+    "ToDoItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        }
+      },
+      "title": "todo item represented by an id, title and a description"
+    }
+  }
+}
