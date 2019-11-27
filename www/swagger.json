@@ -11,7 +11,7 @@
     "application/json"
   ],
   "paths": {
-    "/todo/add": {
+    "/api/todo/v1/add": {
       "post": {
         "operationId": "AddToDo",
         "responses": {
@@ -36,28 +36,110 @@
           "TodoListService"
         ]
       }
+    },
+    "/api/todo/v1/all": {
+      "get": {
+        "operationId": "GetAllToDo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AllToDoItems"
+            }
+          }
+        },
+        "tags": [
+          "TodoListService"
+        ]
+      }
+    },
+    "/api/todo/v1/{id}": {
+      "delete": {
+        "operationId": "DeleteToDo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GenericResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TodoListService"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateToDo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GenericResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        ],
+        "tags": [
+          "TodoListService"
+        ]
+      }
     }
   },
   "definitions": {
+    "AllToDoItems": {
+      "type": "object",
+      "properties": {
+        "toDoItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetToDoItem"
+          }
+        },
+        "genericResponse": {
+          "$ref": "#/definitions/GenericResponse"
+        }
+      }
+    },
     "GenericResponse": {
       "type": "object",
       "properties": {
-        "code": {
-          "type": "string",
-          "format": "int64"
+        "status": {
+          "type": "string"
         },
-        "msg": {
+        "message": {
           "type": "string"
         }
       },
       "title": "this is a generic response to add, put and delete request"
     },
-    "ToDoItem": {
+    "GetToDoItem": {
       "type": "object",
       "properties": {
         "id": {
-          "type": "string",
-          "format": "int64"
+          "type": "string"
         },
         "title": {
           "type": "string"
@@ -65,8 +147,31 @@
         "description": {
           "type": "string"
         },
-        "tag": {
+        "status": {
+          "$ref": "#/definitions/Status"
+        }
+      }
+    },
+    "Status": {
+      "type": "string",
+      "enum": [
+        "0:TODO",
+        "1:INPROGRESS",
+        "2:DONE"
+      ],
+      "default": "0"
+    },
+    "ToDoItem": {
+      "type": "object",
+      "properties": {
+        "title": {
           "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
         }
       },
       "title": "todo item represented by an id, title and a description"

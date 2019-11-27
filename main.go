@@ -8,9 +8,9 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "github.com/ameniGa/TODO/api/proto"
+	pb "github.com/3almadmoon/ameni-assignment/api/proto"
 
-	service "github.com/ameniGa/TODO/api"
+	service "github.com/3almadmoon/ameni-assignment/api"
 
 	"sync"
 

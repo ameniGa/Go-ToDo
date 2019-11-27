@@ -4,27 +4,66 @@ import "google/api/annotations.proto";
 
 //todo item represented by an id, title and a description
 message ToDoItem {
-    int64 id = 1;
+    string title = 1;
+    string description = 2;
+    Status status = 4;
+}
+message GetToDoItem {
+    string id =1;
     string title = 2;
     string description = 3;
-    string tag = 4;
+    Status status = 4;
+}
+enum Status {
+    TODO = 0;
+    INPROGRESS = 1;
+    DONE = 2;
 
+}
+message DeleteToDoItem {
+    string id = 1;
+}
+message UpdateToDoItem {
+    string id = 1;
+    Status status = 2;
+}
+message EmptyRequest {
+}
+message AllToDoItems {
+    repeated GetToDoItem toDoItems = 1;
+    GenericResponse genericResponse = 2;
+    
 }
 // this is a generic response to add, put and delete request
 message GenericResponse {
-    int64 code = 1;
-    string msg = 2;
+    string  status = 1;
+    string message = 2;
 }
 
 // define todo service
 service TodoListService {
+
     rpc AddToDo (ToDoItem) returns (GenericResponse) {
-    //http entry to this grpc service
-option (google.api.http) = {
-     post : "/todo/add"
-     body : "*"
-
-
-};
-}
+        //http entry to this grpc service
+    option (google.api.http) = {
+        post : "/api/todo/v1/add"
+        body : "*"
+    };
+    }
+    rpc DeleteToDo (DeleteToDoItem) returns (GenericResponse) {
+        option (google.api.http) = {
+            delete : "/api/todo/v1/{id}"
+        };
+    }
+    rpc UpdateToDo (UpdateToDoItem) returns (GenericResponse) {
+        option (google.api.http) = {
+            put : "/api/todo/v1/{id}"
+            body : "status"
+        };
+    }
+    rpc GetAllToDo (EmptyRequest) returns (AllToDoItems) {
+        option (google.api.http) = {
+            get : "/api/todo/v1/all"
+        };
+    }
 }
