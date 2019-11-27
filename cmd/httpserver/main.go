@@ -8,8 +8,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "github.com/ameniGa/TODO/api/proto"
-
+	utils "github.com/3almadmoon/ameni-assignment/api"
+	pb "github.com/3almadmoon/ameni-assignment/api/proto"
 	"sync"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -32,7 +32,7 @@ func startHTTP() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	conn, err := grpc.Dial("localhost:5566", grpc.WithInsecure())
+	conn, err := grpc.Dial(utils.GRPC_BASE_URL, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("fail to dial : v%", err)
 	}
@@ -53,7 +53,7 @@ func startHTTP() {
 	mux.Handle("/swagger-ui/", http.StripPrefix("/swagger-ui", fs))
 
 	log.Println("REST server ready...")
-	err = http.ListenAndServe("localhost:8080", mux)
+	err = http.ListenAndServe(utils.HTTP_BASE_URL, mux)
 	if err != nil {
 		log.Fatalf("can't serve %v ", err)
 	}
