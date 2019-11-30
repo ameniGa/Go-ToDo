@@ -15,10 +15,6 @@ type ReposImp struct {
 	Mcollection *mongo.Collection
 }
 
-func NewToDoRepos(collection *mongo.Collection) ReposImp {
-	return ReposImp{collection}
-}
-
 func (s *ReposImp) AddToDo(context context.Context, item entity.ToDo) error {
 
 	_, err := s.Mcollection.InsertOne(context, item)

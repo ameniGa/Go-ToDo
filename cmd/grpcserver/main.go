@@ -38,7 +38,7 @@ func startGRPC() {
 		log.Fatalf("Failed to listen : %v ", err)
 	}
 	grpcServer := grpc.NewServer()
-	myReposImp := ri.NewToDoRepos(collection)
+	myReposImp := ri.ReposImp{Mcollection: collection}
 	pb.RegisterTodoListServiceServer(grpcServer, &service.TodoListServiceServer{myReposImp})
 	if error := grpcServer.Serve(lis); error != nil {
 		log.Fatalf("Failed to serve %v", error)

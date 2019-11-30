@@ -16,7 +16,7 @@ var mContext context.Context
 
 func init() {
 	collection, _ = db.Connect()
-	reposImp = NewToDoRepos(collection)
+	reposImp = ReposImp{collection}
 }
 
 var list []*entity.ToDo
