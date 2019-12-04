@@ -8,14 +8,15 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/3almadmoon/ameni-assignment/api/db"
+	"github.com/spf13/viper"
 
 	ri "github.com/3almadmoon/ameni-assignment/api/reposImp"
-
-	utils "github.com/3almadmoon/ameni-assignment/api"
 
 	pb "github.com/3almadmoon/ameni-assignment/api/proto"
 
 	service "github.com/3almadmoon/ameni-assignment/api/serviceimp"
+
+	config "github.com/3almadmoon/ameni-assignment/configs"
 
 	"sync"
 )
@@ -33,7 +34,7 @@ func startGRPC() {
 	if err != nil {
 		log.Fatalf("can't connect to mongoDB %v", err)
 	}
-	lis, err := net.Listen("tcp", utils.GRPC_BASE_URL)
+	lis, err := net.Listen("tcp", viper.GetString("grpcserver.host"))
 	if err != nil {
 		log.Fatalf("Failed to listen : %v ", err)
 	}
@@ -48,7 +49,9 @@ func startGRPC() {
 }
 
 func main() {
-
+	if err := config.SetViper(); err != nil {
+		log.Fatalf("Error reading config file, %s", err)
+	}
 	go startGRPC()
 
 	wg.Add(1)

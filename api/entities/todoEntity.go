@@ -1,18 +1,16 @@
 package entities
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 type EStatus int
 
 const (
-	TODO       EStatus = 0
-	INPROGRESS EStatus = 1
-	DONE       EStatus = 2
+	TODO       EStatus = 1
+	INPROGRESS EStatus = 2
+	DONE       EStatus = 3
 )
 
 type ToDo struct {
-	Id          primitive.ObjectID `bson:"_id,omitepty"`
-	Title       string             `bson:"title"`
-	Description string             `bson:"description"`
-	Status      EStatus            `bson:"status"`
+	Hash        string
+	Title       string  `bson:"title"`
+	Description string  `bson:"description"`
+	Status      EStatus `bson:"status"`
 }

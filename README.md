@@ -1,4 +1,7 @@
-# TODO golang app
+# TODO service
+
+### TODO service provides APIs in gRPC and RESTful ,written with Golang ,uses MongoDB
+
 ### install app dependencies
     make install
 

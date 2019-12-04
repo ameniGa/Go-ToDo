@@ -2,11 +2,9 @@ install:
 	go get
 generate:
 	protoc \
-  -I/usr/local/include \
-  -I. \
-  -I$GOPATH/src \
-  -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-  --go_out=plugins=grpc:proto \
+  -I$(GOPATH)/src \
+  -I$(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+  --go_out=plugins=grpc:api/proto \
   --swagger_out=logtostderr=true:api/proto \
   --grpc-gateway_out=logtostderr=true:api/proto \
   --proto_path api/proto service.proto
@@ -14,19 +12,19 @@ generate:
 	cp api/swagger/service.swagger.json  www/swagger.json
 
 build:
-	go build  cmd/grpcserver/main.go
-	go build  cmd/grpcclient/main.go
-	go build  cmd/httpserver/main.go
+	go build  cmd/grpcserver/grpcServer.go
+	go build  cmd/grpcclient/grpcClient.go
+	go build  cmd/httpserver/httpServer.go
 
 
 rungrpc:
-	go run  cmd/grpcserver/main.go
+	go run  cmd/grpcserver/grpcServer.go
 runhttp:	
-	go run  cmd/httpserver/main.go  
+	go run  cmd/httpserver/httpServer.go  
 
 
 runclient:  
-	go run  cmd/grpcclient/main.go
+	go run  cmd/grpcclient/grpcClient.go
 
 
 test:
