@@ -42,9 +42,9 @@
         "operationId": "GetAllToDo",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "A successful response.(streaming responses)",
             "schema": {
-              "$ref": "#/definitions/AllToDoItems"
+              "$ref": "#/x-stream-definitions/AllToDoItems"
             }
           }
         },
@@ -53,7 +53,7 @@
         ]
       }
     },
-    "/api/todo/v1/{id}": {
+    "/api/todo/v1/{hash}": {
       "delete": {
         "operationId": "DeleteToDo",
         "responses": {
@@ -66,7 +66,7 @@
         },
         "parameters": [
           {
-            "name": "id",
+            "name": "hash",
             "in": "path",
             "required": true,
             "type": "string"
@@ -88,7 +88,7 @@
         },
         "parameters": [
           {
-            "name": "id",
+            "name": "hash",
             "in": "path",
             "required": true,
             "type": "string"
@@ -113,15 +113,13 @@
       "type": "object",
       "properties": {
         "toDoItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/GetToDoItem"
-          }
+          "$ref": "#/definitions/GetToDoItem"
         },
         "genericResponse": {
           "$ref": "#/definitions/GenericResponse"
         }
-      }
+      },
+      "title": "GetAllToDo response"
     },
     "GenericResponse": {
       "type": "object",
@@ -138,19 +136,14 @@
     "GetToDoItem": {
       "type": "object",
       "properties": {
-        "id": {
+        "hash": {
           "type": "string"
         },
-        "title": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "status": {
-          "$ref": "#/definitions/Status"
+        "toDoItem": {
+          "$ref": "#/definitions/ToDoItem"
         }
-      }
+      },
+      "title": "toDoItem with hash"
     },
     "Status": {
       "type": "string",
@@ -159,7 +152,8 @@
         "INPROGRESS",
         "DONE"
       ],
-      "default": "TODO"
+      "default": "TODO",
+      "title": "status can be TODO = 0;INPROGRESS = 1;DONE = 2"
     },
     "ToDoItem": {
       "type": "object",
@@ -174,7 +168,58 @@
           "$ref": "#/definitions/Status"
         }
       },
-      "title": "todo item represented by an id, title and a description"
+      "title": "todo item represented by a title, a description and a status"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeStreamError": {
+      "type": "object",
+      "properties": {
+        "grpc_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "http_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "http_status": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  },
+  "x-stream-definitions": {
+    "AllToDoItems": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/AllToDoItems"
+        },
+        "error": {
+          "$ref": "#/definitions/runtimeStreamError"
+        }
+      },
+      "title": "Stream result of AllToDoItems"
     }
   }
 }

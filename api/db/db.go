@@ -2,9 +2,11 @@ package db
 
 import (
 	"context"
-	utils "github.com/3almadmoon/ameni-assignment/api"
 	"log"
 	"time"
+
+	config "github.com/3almadmoon/ameni-assignment/configs"
+	"github.com/spf13/viper"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -12,19 +14,30 @@ import (
 
 var client *mongo.Client
 var ctx context.Context
+var cancel context.CancelFunc
 
+//init function parse config file to get db params
+func init() {
+	if err := config.SetViper(); err != nil {
+		log.Fatalf("Error reading config file, %s", err)
+	}
+}
+
+//Connect to mongoDB , create database and collection if don't exist
 func Connect() (*mongo.Collection, error) {
 	var err error
-	ctx, _ = context.WithTimeout(context.Background(), 10*time.Second)
-	client, err = mongo.Connect(ctx, options.Client().ApplyURI(utils.DB_URI))
+	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err = mongo.Connect(ctx, options.Client().ApplyURI(viper.GetString("database.uri")))
 	if err != nil {
 		return nil, err
 	}
 	log.Println("successfully connected to MongoDB")
-	collection := client.Database(utils.DB_NAME).Collection(utils.DB_COLLECTION_NAME)
+	collection := client.Database(viper.GetString("database.name")).Collection(viper.GetString("database.collection"))
 	return collection, err
 }
 
+//Disconnect from mongoDB
 func Disconnect() {
 	client.Disconnect(ctx)
 }
