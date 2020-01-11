@@ -7,14 +7,15 @@ import (
 
 	config "github.com/3almadmoon/ameni-assignment/configs"
 	"github.com/spf13/viper"
-
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var client *mongo.Client
-var ctx context.Context
-var cancel context.CancelFunc
+var (
+	client *mongo.Client
+	ctx    context.Context
+	cancel context.CancelFunc
+)
 
 //init function parse config file to get db params
 func init() {

@@ -148,11 +148,12 @@
     "Status": {
       "type": "string",
       "enum": [
+        "UNKNOWN",
         "TODO",
         "INPROGRESS",
         "DONE"
       ],
-      "default": "TODO",
+      "default": "UNKNOWN",
       "title": "status can be TODO = 0;INPROGRESS = 1;DONE = 2"
     },
     "ToDoItem": {

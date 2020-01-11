@@ -12,9 +12,10 @@ message ToDoItem {
 
 //status can be TODO = 0;INPROGRESS = 1;DONE = 2
 enum Status {
-    TODO = 0;
-    INPROGRESS = 1;
-    DONE = 2;
+    UNKNOWN = 0;
+    TODO = 1;
+    INPROGRESS = 2;
+    DONE = 3;
 
 }
 
