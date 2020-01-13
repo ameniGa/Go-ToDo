@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	pb "github.com/3almadmoon/ameni-assignment/api/proto"
-	config "github.com/3almadmoon/ameni-assignment/configs"
+	config "github.com/3almadmoon/ameni-assignment/config"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/viper"
 )

@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	pb "github.com/3almadmoon/ameni-assignment/api/proto"
-	config "github.com/3almadmoon/ameni-assignment/configs"
+	pb "github.com/3almadmoon/ameni-assignment/protobuf"
+	config "github.com/3almadmoon/ameni-assignment/config"
 	"github.com/golang/protobuf/ptypes/empty"
 
 	"github.com/spf13/viper"
@@ -53,7 +53,7 @@ func runClient() {
 		if er != nil {
 			log.Fatalf("can't load items %v", er)
 		}
-		elem = item.ToDoItems.GetHash()
+		elem = item.ToDoItemdb.GetHash()
 		log.Printf("GETALL 1: |RES|:\n %v, \n |ERROR|: \n %v", item, er2)
 	}
 

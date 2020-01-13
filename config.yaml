@@ -1,0 +1,12 @@
+httpserver:
+  host:    "localhost:8080"
+
+grpcserver:
+  host:    "localhost:5566"
+
+database:
+  type: "mongo"
+  uri: "mongodb://localhost:27017"
+  name: "sprintDB"
+  collection: "TODO"
+

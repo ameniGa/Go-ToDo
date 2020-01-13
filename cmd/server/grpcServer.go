@@ -10,13 +10,13 @@ import (
 	"github.com/3almadmoon/ameni-assignment/api/db"
 	"github.com/spf13/viper"
 
-	ri "github.com/3almadmoon/ameni-assignment/api/reposImp"
+	ri "github.com/3almadmoon/ameni-assignment/api/todoLogic"
 
 	pb "github.com/3almadmoon/ameni-assignment/api/proto"
 
-	service "github.com/3almadmoon/ameni-assignment/api/serviceimp"
+	service "github.com/3almadmoon/ameni-assignment/api/service"
 
-	config "github.com/3almadmoon/ameni-assignment/configs"
+	config "github.com/3almadmoon/ameni-assignment/config"
 
 	"sync"
 )
@@ -39,8 +39,8 @@ func startGRPC() {
 		log.Fatalf("Failed to listen : %v ", err)
 	}
 	grpcServer := grpc.NewServer()
-	myReposImp := ri.ReposImp{Mcollection: collection}
-	pb.RegisterTodoListServiceServer(grpcServer, &service.TodoListServiceServer{myReposImp})
+	toDoImp := ri.TodoImp{ToDoCollection: collection}
+	pb.RegisterTodoListServiceServer(grpcServer, &service.TodoListService{toDoImp})
 	if error := grpcServer.Serve(lis); error != nil {
 		log.Fatalf("Failed to serve %v", error)
 	}

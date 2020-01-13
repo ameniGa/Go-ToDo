@@ -1,4 +1,4 @@
-package serviceimp
+package service
 
 import (
 	"context"
@@ -6,13 +6,13 @@ import (
 
 	entity "github.com/3almadmoon/ameni-assignment/api/entities"
 	pb "github.com/3almadmoon/ameni-assignment/api/proto"
-	ri "github.com/3almadmoon/ameni-assignment/api/reposImp"
+	ri "github.com/3almadmoon/ameni-assignment/api/todoLogic"
 	"github.com/golang/protobuf/ptypes/empty"
 )
 
-//TodoListServiceServer this is the implementation of server API TodoListServiceServer for TodoListService service
-type TodoListServiceServer struct {
-	ReposImp ri.ReposImp
+//TodoListService this is the implementation of server API TodoListService for TodoListService service
+type TodoListService struct {
+	TodoImp ri.TodoImp
 }
 
 const (
@@ -24,7 +24,7 @@ const (
 
 //AddToDo add ToDoItem message and returns a genericResponse message
 //which indicates success or fail and detailed message and error
-func (s *TodoListServiceServer) AddToDo(ctx context.Context, item *pb.ToDoItem) (*pb.GenericResponse, error) {
+func (s *TodoListService) AddToDo(ctx context.Context, item *pb.ToDoItem) (*pb.GenericResponse, error) {
 	//check rpc timeout
 	checkErr := checkTimeout(ctx)
 	if checkErr != nil {
@@ -32,12 +32,12 @@ func (s *TodoListServiceServer) AddToDo(ctx context.Context, item *pb.ToDoItem) 
 	}
 	if item.GetTitle() != "" {
 		toDo := entity.ToDo{
-			Hash:        getToDoHash(item.GetTitle()),
+			Hash:        GetToDoHash(item.GetTitle()),
 			Title:       item.GetTitle(),
 			Description: item.GetDescription(),
 			Status:      entity.EStatus(item.GetStatus()),
 		}
-		err := s.ReposImp.AddToDo(ctx, toDo) // this is goroutine
+		err := s.TodoImp.AddToDo(ctx, toDo) // this is goroutine
 		if err != nil {
 			return throwError(err, "item not added")
 		}
@@ -49,13 +49,13 @@ func (s *TodoListServiceServer) AddToDo(ctx context.Context, item *pb.ToDoItem) 
 //DeleteToDo delete todo item by hash
 //returns Generic response
 //which indicates success or fail and detailed message and error
-func (s *TodoListServiceServer) DeleteToDo(context context.Context, item *pb.DeleteToDoItem) (*pb.GenericResponse, error) {
+func (s *TodoListService) DeleteToDo(context context.Context, item *pb.DeleteToDoItem) (*pb.GenericResponse, error) {
 	checkErr := checkTimeout(context)
 	if checkErr != nil {
 		return throwError(checkErr, "item not deleted")
 	}
 	if (item != &pb.DeleteToDoItem{}) {
-		status, err := s.ReposImp.DeleteToDo(context, item.GetHash())
+		status, err := s.TodoImp.DeleteToDo(context, item.GetHash())
 		if err != nil {
 			return throwError(err, "item not added")
 		}
@@ -70,13 +70,13 @@ func (s *TodoListServiceServer) DeleteToDo(context context.Context, item *pb.Del
 //UpdateToDo update status of todo item by hash
 //returns Generic response
 //which indicates success or fail and detailed message and error
-func (s *TodoListServiceServer) UpdateToDo(context context.Context, item *pb.UpdateToDoItem) (*pb.GenericResponse, error) {
+func (s *TodoListService) UpdateToDo(context context.Context, item *pb.UpdateToDoItem) (*pb.GenericResponse, error) {
 	checkErr := checkTimeout(context)
 	if checkErr != nil {
 		return throwError(checkErr, "item not deleted")
 	}
 	if (item != &pb.UpdateToDoItem{}) {
-		status, err := s.ReposImp.UpdateToDo(context, item.GetHash(), entity.EStatus(item.GetStatus()))
+		status, err := s.TodoImp.UpdateToDo(context, item.GetHash(), entity.EStatus(item.GetStatus()))
 
 		if err != nil {
 			return throwError(err, "item not updated")
@@ -91,13 +91,13 @@ func (s *TodoListServiceServer) UpdateToDo(context context.Context, item *pb.Upd
 
 //GetAllToDo stream all todo items
 //returns error
-func (s *TodoListServiceServer) GetAllToDo(item *empty.Empty, stream pb.TodoListService_GetAllToDoServer) error {
+func (s *TodoListService) GetAllToDo(item *empty.Empty, stream pb.TodoListService_GetAllToDoServer) error {
 	checkErr := checkTimeout(stream.Context())
 	if checkErr != nil {
 		return checkErr
 	}
 	var streamErr error
-	res, err := s.ReposImp.GetAllToDo(context.Background())
+	res, err := s.TodoImp.GetAllToDo(context.Background())
 	if err != nil {
 		return err
 	}
