@@ -6,6 +6,7 @@ require (
 	github.com/aws/aws-sdk-go v1.25.40
 	github.com/golang/protobuf v1.3.2
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/google/uuid v1.1.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.12.1
 	github.com/mongodb/mongo-go-driver v1.1.3
