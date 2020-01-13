@@ -2,16 +2,15 @@ package main
 
 import (
 	"context"
+	"github.com/3almadmoon/ameni-assignment/config"
 	"io"
 	"log"
 	"sync"
 	"time"
 
 	pb "github.com/3almadmoon/ameni-assignment/protobuf"
-	config "github.com/3almadmoon/ameni-assignment/config"
 	"github.com/golang/protobuf/ptypes/empty"
 
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -21,10 +20,10 @@ var wg sync.WaitGroup
 // runClient
 // create grpc client
 // make a remote call
-func runClient() {
+func runClient(host string) {
 	ctx, cancelTimeoutFunc := context.WithTimeout(context.Background(), 3*time.Second)
-	conn, err := grpc.DialContext(ctx, viper.GetString("grpcserver.host"), grpc.WithInsecure(), grpc.WithBlock())
-	cancelTimeoutFunc()
+	defer cancelTimeoutFunc()
+	conn, err := grpc.DialContext(ctx, host, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
@@ -53,7 +52,7 @@ func runClient() {
 		if er != nil {
 			log.Fatalf("can't load items %v", er)
 		}
-		elem = item.ToDoItemdb.GetHash()
+		elem = item.Hash
 		log.Printf("GETALL 1: |RES|:\n %v, \n |ERROR|: \n %v", item, er2)
 	}
 
@@ -88,8 +87,9 @@ func getContextWithTimeout(timeout time.Duration) (*context.Context, context.Can
 }
 
 func main() {
-	if err := config.SetViper(); err != nil {
-		log.Fatalf("Error reading config file, %s", err)
+	conf,err := config.GetConfig()
+	if err != nil {
+		log.Panicf("cannot parse config file: %v", err)
 	}
-	runClient()
+	runClient(conf.Server.Grpc.Host)
 }

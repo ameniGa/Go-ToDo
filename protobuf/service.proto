@@ -41,15 +41,6 @@ message UpdateToDoItem {
     Status status = 2;
 }
 
-//GetAllToDo request message
-message EmptyRequest {
-}
-
-//GetAllToDo response 
-message AllToDoItems {
-    GetToDoItem toDoItems = 1;
-    GenericResponse genericResponse = 2;  
-}
 // this is a generic response to add, put and delete request
 message GenericResponse {
     string  status = 1;
@@ -78,7 +69,7 @@ service TodoListService {
             body : "status"
         };
     }
-    rpc GetAllToDo (google.protobuf.Empty) returns (stream AllToDoItems) {
+    rpc GetAllToDo (google.protobuf.Empty) returns (stream GetToDoItem) {
         option (google.api.http) = {
             get : "/api/todo/v1/all"
         };
