@@ -3,11 +3,13 @@ package config
 import "github.com/spf13/viper"
 
 type Config struct {
-	Httpserver struct {
-		Host string
-	}
-	Grpcserver struct {
-		Host string
+	Server struct {
+		Grpc struct {
+			Host string
+		}
+		Http struct {
+			Host string
+		}
 	}
 	Database struct {
 		Type       string
@@ -19,7 +21,7 @@ type Config struct {
 
 func setViper() error {
 	viper.SetConfigName("config")
-	viper.AddConfigPath("..")
+	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	return err
 }

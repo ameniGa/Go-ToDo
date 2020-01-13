@@ -44,7 +44,7 @@
           "200": {
             "description": "A successful response.(streaming responses)",
             "schema": {
-              "$ref": "#/x-stream-definitions/AllToDoItems"
+              "$ref": "#/x-stream-definitions/GetToDoItem"
             }
           }
         },
@@ -109,18 +109,6 @@
     }
   },
   "definitions": {
-    "AllToDoItems": {
-      "type": "object",
-      "properties": {
-        "toDoItems": {
-          "$ref": "#/definitions/GetToDoItem"
-        },
-        "genericResponse": {
-          "$ref": "#/definitions/GenericResponse"
-        }
-      },
-      "title": "GetAllToDo response"
-    },
     "GenericResponse": {
       "type": "object",
       "properties": {
@@ -210,17 +198,17 @@
     }
   },
   "x-stream-definitions": {
-    "AllToDoItems": {
+    "GetToDoItem": {
       "type": "object",
       "properties": {
         "result": {
-          "$ref": "#/definitions/AllToDoItems"
+          "$ref": "#/definitions/GetToDoItem"
         },
         "error": {
           "$ref": "#/definitions/runtimeStreamError"
         }
       },
-      "title": "Stream result of AllToDoItems"
+      "title": "Stream result of GetToDoItem"
     }
   }
 }

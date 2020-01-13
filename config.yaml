@@ -1,8 +1,8 @@
-httpserver:
-  host:    "localhost:8080"
-
-grpcserver:
-  host:    "localhost:5566"
+server:
+  http:
+    host:    "localhost:8080"
+  grpc:
+    host:    "localhost:5566"
 
 database:
   type: "mongo"

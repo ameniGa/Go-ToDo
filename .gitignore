@@ -1,4 +1,7 @@
 .vscode
 .aws
+.idea
+*.exe
+*.bin
 api/proto/service.pb.go
 api/proto/service.pb.gw.go
