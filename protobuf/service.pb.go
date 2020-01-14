@@ -26,7 +26,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-//status can be TODO = 0;INPROGRESS = 1;DONE = 2
+//status can be TO DO = 0;INPROGRESS = 1;DONE = 2
 type Status int32
 
 const (
@@ -58,7 +58,7 @@ func (Status) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_a0b84a42fa06f626, []int{0}
 }
 
-//todo item represented by a title, a description and a status
+//to do item represented by a title, a description and a status
 type ToDoItem struct {
 	Title                string   `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	Description          string   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`

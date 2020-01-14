@@ -7,6 +7,6 @@ server:
 database:
   type: "mongo"
   uri: "mongodb://localhost:27017"
-  name: "sprintDB"
-  collection: "TODO"
+  name: "tasks"
+  collection: "todo-list"
 
