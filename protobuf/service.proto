@@ -3,14 +3,14 @@ syntax = "proto3";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
-//todo item represented by a title, a description and a status
+//to do item represented by a title, a description and a status
 message ToDoItem {
     string title = 1;
     string description = 2;
     Status status = 4;
 } 
 
-//status can be TODO = 0;INPROGRESS = 1;DONE = 2
+//status can be TO DO = 0;INPROGRESS = 1;DONE = 2
 enum Status {
     UNKNOWN = 0;
     TODO = 1;
@@ -47,7 +47,7 @@ message GenericResponse {
     string message = 2;
 }
 
-// define todo service
+// define to do service
 service TodoListService {
 
     rpc AddToDo (ToDoItem) returns (GenericResponse) {

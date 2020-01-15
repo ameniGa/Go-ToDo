@@ -24,7 +24,6 @@ var (
 	wg      sync.WaitGroup
 )
 
-//TODO change params with config
 func NewMongoDBhandler(conf *config.Config) (*MongoDBhandler, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -33,12 +32,11 @@ func NewMongoDBhandler(conf *config.Config) (*MongoDBhandler, error) {
 		return nil, err
 	}
 	log.Println("successfully connected to MongoDB")
-	//TODO create index hash
 	collection := client.Database(conf.Database.Name).Collection(conf.Database.Collection)
 	return &MongoDBhandler{collection}, nil
 }
 
-//AddToDo add a todo item to database
+//AddToDo add a to do item to database
 //returns error
 func (db *MongoDBhandler) AddToDo(context context.Context, item entity.ToDo) error {
 	err := helpers.CheckTimeout(context)
@@ -78,7 +76,7 @@ func (db *MongoDBhandler) DeleteToDo(context context.Context, hash string) (bool
 	return handleResponse(err, res)
 }
 
-//UpdateToDo update ,by hash, the status of todo item
+//UpdateToDo update ,by hash, the status of to do item
 //returns boolean true:success, false:fail and error
 func (db *MongoDBhandler) UpdateToDo(context context.Context, hash string, status entity.EStatus) (bool, error) {
 	err := helpers.CheckTimeout(context)
@@ -100,8 +98,8 @@ func (db *MongoDBhandler) UpdateToDo(context context.Context, hash string, statu
 	return handleResponse(err, res)
 }
 
-//GetAllToDo finds all items in collection todo
-//returns array pf ToDo struct and error
+//GetAllToDo finds all items in collection to do
+//returns array pf To Do struct and error
 func (db *MongoDBhandler) GetAllToDo(context context.Context) ([]*entity.ToDo, error) {
 	err := helpers.CheckTimeout(context)
 	if err != nil {

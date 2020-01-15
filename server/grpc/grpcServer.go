@@ -27,7 +27,7 @@ func (svc GrpcRunner) Start() error {
 		log.Fatalf("Failed to listen : %v ", err)
 		return err
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(UnaryRequestValidator))
 	pb.RegisterTodoListServiceServer(grpcServer, &svc)
 	if error := grpcServer.Serve(lis); error != nil {
 		log.Fatalf("Failed to serve %v", error)

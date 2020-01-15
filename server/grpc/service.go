@@ -7,12 +7,12 @@ import (
 	pb "github.com/3almadmoon/ameni-assignment/protobuf"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/uuid"
+	"time"
 )
 
 //AddToDo add ToDoItem message and returns a genericResponse message
 //which indicates success or fail and detailed message and error
 func (svc *GrpcRunner) AddToDo(ctx context.Context, item *pb.ToDoItem) (*pb.GenericResponse, error) {
-	//TODO check ctx and input in interceptor
 	//TODO call db in go routine
 	toDo := entity.ToDo{
 		Hash:        uuid.New().String(),
@@ -31,7 +31,7 @@ func (svc *GrpcRunner) AddToDo(ctx context.Context, item *pb.ToDoItem) (*pb.Gene
 	return &resp, nil
 }
 
-//DeleteToDo delete todo item by hash
+//DeleteToDo delete to do item by hash
 //returns Generic response
 //which indicates success or fail and detailed message and error
 func (svc *GrpcRunner) DeleteToDo(context context.Context, item *pb.DeleteToDoItem) (*pb.GenericResponse, error) {
@@ -51,7 +51,7 @@ func (svc *GrpcRunner) DeleteToDo(context context.Context, item *pb.DeleteToDoIt
 
 }
 
-//UpdateToDo update status of todo item by hash
+//UpdateToDo update status of to do item by hash
 //returns Generic response
 //which indicates success or fail and detailed message and error
 func (svc *GrpcRunner) UpdateToDo(context context.Context, item *pb.UpdateToDoItem) (*pb.GenericResponse, error) {
@@ -69,11 +69,13 @@ func (svc *GrpcRunner) UpdateToDo(context context.Context, item *pb.UpdateToDoIt
 	return &resp, nil
 }
 
-//GetAllToDo stream all todo items
+//GetAllToDo stream all to do items
 //returns error
 func (svc *GrpcRunner) GetAllToDo(item *empty.Empty, stream pb.TodoListService_GetAllToDoServer) error {
 	var streamErr error
-	res, err := svc.DB.GetAllToDo(context.Background())
+	dbCtx,canc := context.WithTimeout(stream.Context(),5*time.Second)
+	defer canc()
+	res, err := svc.DB.GetAllToDo(dbCtx)
 	if err != nil {
 		return err
 	}

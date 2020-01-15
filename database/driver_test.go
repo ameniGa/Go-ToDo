@@ -12,20 +12,22 @@ var (
 	mContext context.Context
 )
 
-var(
-	db *MongoDBhandler
+var (
+	db  *MongoDBhandler
 	err error
 )
 
 func init() {
 	conf := config.Config{
 		Database: struct {
+			Type       string
 			Uri        string
 			Name       string
 			Collection string
 		}{
+			"mongo",
 			"mongodb://localhost:27017",
-			"db-test",
+			"tasks",
 			"todo-test",
 		},
 	}
