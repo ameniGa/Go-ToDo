@@ -3,52 +3,44 @@ package grpc
 import (
 	"context"
 	pb "github.com/3almadmoon/ameni-assignment/protobuf"
-	"github.com/google/uuid"
+	td "github.com/3almadmoon/ameni-assignment/testData"
 	"testing"
 	"time"
 )
 
-var tt= []struct{
-	name string
-	hash string
-	title string
-	isAddItem bool
-	hasError bool
-	isValidCtx bool
-}{
-	{"invalid context","","golang",true,false,false},
-	{"valid Add request","","golang",true,false,true},
-    {"empty title in Add request","","",true,true,true},
-	{"empty hash in Delete request","","",false,true,true},
-	{"valid delete request",uuid.New().String(),"",false,false,true},
-}
 
 func TestUnaryRequestValidator(t *testing.T) {
 	ctx := context.Background()
 	var canc context.CancelFunc
-	for _,testCase := range tt {
-		t.Run(testCase.name, func(t *testing.T) {
-			if testCase.isValidCtx {
+	for _, testCase := range td.TTReqValidation {
+		t.Run(testCase.Name, func(t *testing.T) {
+			if testCase.IsValidCtx {
 				ctx, canc = context.WithTimeout(context.Background(), 2*time.Second)
 				defer canc()
 			}
-
 			var req interface{}
-			if testCase.isAddItem {
+			switch testCase.ReqType {
+			case "add":
 				req = &pb.ToDoItem{
-					Title:       testCase.title,
+					Title:       testCase.Title,
 					Description: "",
 					Status:      0,
 				}
-			} else {
-				req = &pb.DeleteToDoItem{
-					Hash: testCase.hash,
+			case "update":
+				req = &pb.UpdateToDoItem{
+					Hash: testCase.Hash,
 				}
+			case "delete":
+				req = &pb.DeleteToDoItem{
+					Hash: testCase.Hash,
+				}
+			case "unkown":
+				req = pb.ToDoItem{}
 			}
 
 			_, err := UnaryRequestValidator(ctx, req, nil, handler)
-			if testCase.hasError {
-				if err == nil{
+			if testCase.HasError {
+				if err == nil {
 					t.Error("expected error got nothing")
 				}
 			} else {
@@ -60,6 +52,6 @@ func TestUnaryRequestValidator(t *testing.T) {
 	}
 }
 
-func handler(ctx context.Context, req interface{}) (interface{}, error) {
+func handler(_ context.Context, req interface{}) (interface{}, error) {
 	return req, nil
 }

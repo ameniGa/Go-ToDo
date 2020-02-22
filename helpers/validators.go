@@ -24,9 +24,7 @@ func CheckTimeout(context context.Context) error {
 	return nil
 }
 
+// IsEmpty checks if a string is empty
 func IsEmpty(field string) bool {
-	if field == "" {
-		return true
-	}
-	return false
+	return field == ""
 }
