@@ -4,16 +4,13 @@ import (
 	"context"
 	"github.com/3almadmoon/ameni-assignment/config"
 	entity "github.com/3almadmoon/ameni-assignment/entities"
+	td "github.com/3almadmoon/ameni-assignment/testData"
 	"testing"
 	"time"
 )
 
 var (
-	mContext context.Context
-)
-
-var (
-	db  *MongoDBhandler
+	db  *MongoHandler
 	err error
 )
 
@@ -27,7 +24,7 @@ func init() {
 		}{
 			"mongo",
 			"mongodb://localhost:27017",
-			"tasks",
+			"tasks-test",
 			"todo-test",
 		},
 	}
@@ -36,12 +33,12 @@ func init() {
 
 func TestAddToDo(t *testing.T) {
 	ctx := context.Background()
-	var canc context.CancelFunc
-	for _, testCase := range TtToDo {
+	var cancel context.CancelFunc
+	for _, testCase := range td.TTtoDo {
 		t.Run(testCase.Name, func(t *testing.T) {
 			if testCase.IsValidCtx {
-				ctx, canc = context.WithTimeout(context.Background(), 2*time.Second)
-				defer canc()
+				ctx, cancel = context.WithTimeout(context.Background(), 2*time.Second)
+				defer cancel()
 			}
 			item := entity.ToDo{
 				Hash:        testCase.Hash,
@@ -50,14 +47,11 @@ func TestAddToDo(t *testing.T) {
 				Status:      testCase.Status,
 			}
 			err := db.AddToDo(ctx, item)
-			if testCase.HasErrorOnCreate {
-				if err == nil {
-					t.Error("expected error got nothing")
-				}
-			} else {
-				if err != nil {
-					t.Errorf("expected success got %v", err)
-				}
+			if err == nil && testCase.HasErrorOnCreate {
+				t.Error("expected error got nothing")
+			}
+			if err != nil && !testCase.HasErrorOnCreate {
+				t.Errorf("expected success got %v", err)
 			}
 		})
 	}
@@ -65,22 +59,28 @@ func TestAddToDo(t *testing.T) {
 
 func TestGetAllToDo(t *testing.T) {
 	t.Run("get all items successfully", func(t *testing.T) {
-		ctx, canc := context.WithTimeout(context.Background(), 2*time.Second)
-		defer canc()
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		getChan := make(chan entity.ToDoWithError,20)
+		db.GetAllToDo(ctx,getChan)
 
-		list, err := db.GetAllToDo(ctx)
-		if err != nil {
-			t.Errorf("can't get all: %v", err)
-		}
-		if len(list) == 0 {
-			t.Errorf("expected items got empty list")
+		for output := range getChan {
+			if output.Err != nil {
+				t.Errorf("expected success got: %s", err)
+				break
+			}
+			if output.ToDo == nil{
+				t.Errorf("expected items got empty list")
+				break
+			}
+           t.Logf("%v",output)
 		}
 	})
 }
 func TestUpdateToDo(t *testing.T) {
 	ctx := context.Background()
 	var canc context.CancelFunc
-	for _, testCase := range TtToDo {
+	for _, testCase := range td.TTtoDo {
 		t.Run(testCase.Name, func(t *testing.T) {
 			if testCase.IsValidCtx {
 				ctx, canc = context.WithTimeout(context.Background(), 2*time.Second)
@@ -101,12 +101,12 @@ func TestUpdateToDo(t *testing.T) {
 }
 func TestDeleteToDo(t *testing.T) {
 	ctx := context.Background()
-	var canc context.CancelFunc
-	for _, testCase := range TtToDo[1:] {
+	var cancel context.CancelFunc
+	for _, testCase := range td.TTtoDo[1:] {
 		t.Run(testCase.Name, func(t *testing.T) {
 			if testCase.IsValidCtx {
-				ctx, canc = context.WithTimeout(context.Background(), 2*time.Second)
-				defer canc()
+				ctx, cancel = context.WithTimeout(context.Background(), 2*time.Second)
+				defer cancel()
 			}
 			status, err := db.DeleteToDo(ctx, testCase.Hash)
 			if testCase.HasErrorOnCreate {

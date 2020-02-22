@@ -10,21 +10,18 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	"strings"
 	"sync"
 	"time"
 )
 
-type MongoDBhandler struct {
+type MongoHandler struct {
 	*mongo.Collection
 }
 
-var (
-	rwMutex sync.RWMutex
-	wg      sync.WaitGroup
-)
+var rwMutex sync.RWMutex
 
-func NewMongoDBhandler(conf *config.Config) (*MongoDBhandler, error) {
+// NewMongoDBhandler creates a mongoDB handler
+func NewMongoDBhandler(conf *config.Config) (*MongoHandler, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(conf.Database.Uri))
@@ -33,17 +30,17 @@ func NewMongoDBhandler(conf *config.Config) (*MongoDBhandler, error) {
 	}
 	log.Println("successfully connected to MongoDB")
 	collection := client.Database(conf.Database.Name).Collection(conf.Database.Collection)
-	return &MongoDBhandler{collection}, nil
+
+	return &MongoHandler{collection}, nil
 }
 
-//AddToDo add a to do item to database
-//returns error
-func (db *MongoDBhandler) AddToDo(context context.Context, item entity.ToDo) error {
+// AddToDo adds a to do item to database
+// returns error
+func (db *MongoHandler) AddToDo(context context.Context, item entity.ToDo) error {
 	err := helpers.CheckTimeout(context)
 	if err != nil {
 		return err
 	}
-	log.Println("add ",item.Hash)
 	if (item == entity.ToDo{}) || helpers.IsEmpty(item.Hash) || helpers.IsEmpty(item.Title) {
 		return errors.New("id or title should not be empty")
 	}
@@ -57,9 +54,9 @@ func (db *MongoDBhandler) AddToDo(context context.Context, item entity.ToDo) err
 	return nil
 }
 
-//DeleteToDo delete item by hash from database
-//returns boolean true:success, false:fail and error
-func (db *MongoDBhandler) DeleteToDo(context context.Context, hash string) (bool, error) {
+// DeleteToDo deletes item by hash from database
+// returns boolean true:success, false:fail and error
+func (db *MongoHandler) DeleteToDo(context context.Context, hash string) (bool, error) {
 	err := helpers.CheckTimeout(context)
 	if err != nil {
 		return false, err
@@ -67,7 +64,6 @@ func (db *MongoDBhandler) DeleteToDo(context context.Context, hash string) (bool
 	if helpers.IsEmpty(hash) {
 		return false, errors.New("id or title should not be empty")
 	}
-	log.Println("add ",hash)
 
 	filter := bson.D{{Key: "hash", Value: hash}}
 	rwMutex.Lock()
@@ -76,9 +72,9 @@ func (db *MongoDBhandler) DeleteToDo(context context.Context, hash string) (bool
 	return handleResponse(err, res)
 }
 
-//UpdateToDo update ,by hash, the status of to do item
-//returns boolean true:success, false:fail and error
-func (db *MongoDBhandler) UpdateToDo(context context.Context, hash string, status entity.EStatus) (bool, error) {
+// UpdateToDo updates ,by hash, the status of to do item
+// returns boolean true:success, false:fail and error
+func (db *MongoHandler) UpdateToDo(context context.Context, hash string, status entity.EStatus) (bool, error) {
 	err := helpers.CheckTimeout(context)
 	if err != nil {
 		return false, err
@@ -86,7 +82,6 @@ func (db *MongoDBhandler) UpdateToDo(context context.Context, hash string, statu
 	if helpers.IsEmpty(hash) {
 		return false, errors.New("id or title should not be empty")
 	}
-	log.Println("add ",hash)
 
 	filter := bson.D{{Key: "hash", Value: hash}}
 	log.Println(hash)
@@ -98,38 +93,50 @@ func (db *MongoDBhandler) UpdateToDo(context context.Context, hash string, statu
 	return handleResponse(err, res)
 }
 
-//GetAllToDo finds all items in collection to do
-//returns array pf To Do struct and error
-func (db *MongoDBhandler) GetAllToDo(context context.Context) ([]*entity.ToDo, error) {
+// GetAllToDo finds all items in collection to do
+// returns array pf To Do struct and error
+func (db *MongoHandler) GetAllToDo(context context.Context, ch chan<- entity.ToDoWithError) {
+	defer close(ch)
+
 	err := helpers.CheckTimeout(context)
 	if err != nil {
-		return nil, err
+		ch <- entity.ToDoWithError{
+			ToDo: nil,
+			Err:  err,
+		}
+		return
 	}
-	rwMutex.RLock()
-	defer rwMutex.RUnlock()
 	cursor, err := db.Find(context, bson.D{})
-	if err != nil {
-		return nil, err
+	log.Println(err)
+	if err != nil || cursor == nil{
+		ch <- entity.ToDoWithError{
+			ToDo: nil,
+			Err:  err,
+		}
+		return
 	}
-	var res []*entity.ToDo
-	var errs []string
+
 	for cursor.Next(context) {
 		var elem entity.ToDo
 		err = cursor.Decode(&elem)
 		if err != nil {
-			errs = append(errs, err.Error())
+			ch <- entity.ToDoWithError{
+				ToDo: nil,
+				Err:  err,
+			}
+			continue
 		}
-		res = append(res, &elem)
+		ch <- entity.ToDoWithError{
+			ToDo: &elem,
+			Err:  nil,
+		}
 	}
 	cursor.Close(context)
-	if len(errs) > 0 {
-		return res, errors.New(strings.Join(errs, "; "))
-	}
-	return res, nil
+	return
 }
 
-//handleResponse check query response
-//returns boolean true:success, false:fail and error
+// handleResponse check query response
+// returns boolean true:success, false:fail and error
 func handleResponse(err error, res interface{}) (bool, error) {
 	if err != nil {
 		return false, err

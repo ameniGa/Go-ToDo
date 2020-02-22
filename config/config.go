@@ -1,6 +1,10 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/jinzhu/configor"
+	"path"
+	"runtime"
+)
 
 type Config struct {
 	Server struct {
@@ -19,22 +23,12 @@ type Config struct {
 	}
 }
 
-func setViper() error {
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	return err
-}
-
+// GetConfig parses the config file to the struct Config
 func GetConfig() (*Config, error) {
-	err := setViper()
-	if err != nil {
-		return nil, err
-	}
-	var config Config
-	err = viper.Unmarshal(&config)
-	if err != nil {
-		return nil, err
-	}
-	return &config, nil
+	config := new(Config)
+	_, filename, _, _ := runtime.Caller(0)
+	filepath := path.Join(path.Dir(filename), "../config.yaml")
+
+	err := configor.Load(config, filepath)
+	return config, err
 }
