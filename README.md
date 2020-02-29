@@ -24,10 +24,11 @@
     make test
         
 ### run client CLI
-- to use client cli you have to build the client and run grpc server.
-- for more information about how to use the client cli, try help command:
+ to use client cli you have to build the client and run grpc server.
+ for more information about how to use the client cli, try help command.
+
     ./grpcClient help
-        
+     
 ### run http server
     make runhttp
 
