@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/3almadmoon/ameni-assignment/config"
+	"github.com/3almadmoon/ameni-assignment/database/mongo"
 	entity "github.com/3almadmoon/ameni-assignment/entities"
 )
 
@@ -26,7 +27,7 @@ func CreateDBhandler(config *config.Config) (DBhandler,error) {
     var err error
 	switch config.Database.Type {
 	case "mongo" :
-		db,err = NewMongoDBhandler(config)
+		db,err = mongo.NewMongoDBhandler(config)
 		if err != nil{
 			return nil,err
 		}

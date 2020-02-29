@@ -20,7 +20,7 @@ func NewHttpRunner(conf *config.Config) HttpRunner{
 
 //serveSwagger : handler function
 func serveSwagger(rw http.ResponseWriter, r *http.Request) {
-	http.ServeFile(rw, r, "www/service.swagger.json")
+	http.ServeFile(rw, r, "www/swagger.json")
 	log.Println("serve swagger")
 }
 

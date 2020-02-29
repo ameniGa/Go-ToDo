@@ -16,14 +16,24 @@ import (
 	"google.golang.org/grpc"
 )
 
-type commandHolder interface {
-	init([]string) error
-	run() (interface{}, error)
-	name() string
+type command struct {
+	fs         *flag.FlagSet
+	flagValues map[flagName]interface{}
+}
+
+type cmdFlag struct {
+	name      flagName
+	usage     string
+	valueType string
+}
+
+type clientHandler struct {
+	cancel context.CancelFunc
+	close  func() error
+	pb.TodoListServiceClient
 }
 
 type cmdName string
-type flagName string
 
 const (
 	add       cmdName = "add"
@@ -32,6 +42,8 @@ const (
 	getAll    cmdName = "get-all"
 	help      cmdName = "help"
 )
+
+type flagName string
 
 const (
 	title       flagName = "title"
@@ -54,45 +66,30 @@ Examples:
 	 get-all (with no argument)			
 `
 
-type command struct {
-	fs         *flag.FlagSet
-	flagValues map[flagName]interface{}
-}
-
-type cmdFlag struct {
-	name      flagName
-	usage     string
-	valueType string
-}
-
-type clientHandler struct {
-	cancel context.CancelFunc
-	close  func() error
-	pb.TodoListServiceClient
-}
-
-// define flags name, usage and type for each command
-var (
-	addCmdFlags = []cmdFlag{
+// getCmdsFlags returns a map of cmdName and its flags
+func getCmdsFlags() map[cmdName][]cmdFlag {
+	cmdMap := make(map[cmdName][]cmdFlag)
+	cmdMap[add] = []cmdFlag{
 		{name: title, usage: "title of todo item", valueType: "string"},
 		{name: description, usage: "description of todo item", valueType: "string"},
 		{name: status, usage: "status of todo item", valueType: "int"},
 	}
-	updateCmdFlags = []cmdFlag{
+	cmdMap[update] = []cmdFlag{
 		{name: hash, usage: "unique identifier of todo item", valueType: "string"},
 		{name: status, usage: "status of todo item", valueType: "int"},
 	}
-	deleteCmdFlags = []cmdFlag{
+	cmdMap[deleteOne] = []cmdFlag{
 		{name: hash, usage: "unique identifier of todo item", valueType: "string"},
 	}
-	getAllCmdFlags = []cmdFlag{
+	cmdMap[getAll] = []cmdFlag{
 		{usage: "no argument expected"},
 	}
-)
+	return cmdMap
+}
 
 // newCommand creates a command with its flagSet and map of flag values
 func newCommand(cmdName cmdName, cmdFlags []cmdFlag) command {
-	gc := command {
+	gc := command{
 		fs:         flag.NewFlagSet(string(cmdName), flag.ExitOnError),
 		flagValues: make(map[flagName]interface{}, 3),
 	}
@@ -145,16 +142,16 @@ func (g *command) run(client *clientHandler) (res interface{}, err error) {
 	case string(getAll):
 		res, err = client.GetAllToDo(ctx, &empty.Empty{})
 		stream := res.(pb.TodoListService_GetAllToDoClient)
-		toDos := make([]*pb.GetToDoItem,0)
+		toDos := make([]*pb.GetToDoItem, 0)
 		for {
-			item,errRecv := stream.Recv()
+			item, errRecv := stream.Recv()
 			if errRecv == io.EOF {
 				break
 			}
 			if errRecv != nil {
 				err = errRecv
 			}
-			toDos = append(toDos,item)
+			toDos = append(toDos, item)
 		}
 		res = toDos
 	default:
@@ -163,7 +160,7 @@ func (g *command) run(client *clientHandler) (res interface{}, err error) {
 	return res, err
 }
 
-// name returnes the name of command
+// name returns the name of command
 func (g *command) name() string {
 	return g.fs.Name()
 }
@@ -171,13 +168,14 @@ func (g *command) name() string {
 // startCli handles the cli
 func startCli(client *clientHandler, args []string) (interface{}, error) {
 	if len(args) < 1 {
-		return nil, errors.New("a sub-command expected")
+		return nil, errors.New("a sub-command expected, tap help for more information")
 	}
+	cmdsFlags := getCmdsFlags()
 	cmds := []command{
-		newCommand(add, addCmdFlags),
-		newCommand(update, updateCmdFlags),
-		newCommand(deleteOne, deleteCmdFlags),
-		newCommand(getAll, getAllCmdFlags),
+		newCommand(add, cmdsFlags[add]),
+		newCommand(update, cmdsFlags[update]),
+		newCommand(deleteOne, cmdsFlags[deleteOne]),
+		newCommand(getAll, cmdsFlags[getAll]),
 		newCommand(help, nil),
 	}
 	cmdName := os.Args[1]
